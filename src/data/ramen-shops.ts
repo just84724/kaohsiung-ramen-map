@@ -184,7 +184,16 @@ export const ramenShops: RamenShop[] = [
   },
 ];
 
-export const ALL_TAGS: RamenTag[] = ["豚骨", "雞白湯", "家系", "醬油", "味噌", "沾麵", "鹽味"];
+export const ALL_TAGS: RamenTag[] = [
+  "豚骨",
+  "雞白湯",
+  "家系",
+  "醬油",
+  "味噌",
+  "魚介",
+  "沾麵",
+  "鹽味",
+];
 
 export function getShopById(id: string) {
   return ramenShops.find((s) => s.id === id);
