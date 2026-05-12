@@ -1,4 +1,12 @@
-export type RamenTag = "豚骨" | "雞白湯" | "家系" | "醬油" | "味噌" | "沾麵" | "鹽味";
+export type RamenTag =
+  | "豚骨"
+  | "雞白湯"
+  | "家系"
+  | "醬油"
+  | "味噌"
+  | "沾麵"
+  | "鹽味"
+  | "魚介";
 
 export type RamenShop = {
   id: string;
