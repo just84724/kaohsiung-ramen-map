@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { ramenShops } from "@/data/ramen-shops";
+import { Link } from "@tanstack/react-router";
+import { ramenShops, type RamenShop } from "@/data/ramen-shops";
 
-// Build SVG marker icons (ramen bowl)
 const bowlSvg = (color: string, ring: string) => `
 <svg xmlns="http://www.w3.org/2000/svg" width="44" height="54" viewBox="0 0 44 54">
   <defs>
@@ -15,16 +15,12 @@ const bowlSvg = (color: string, ring: string) => `
   <g filter="url(#s)">
     <path d="M22 52 L10 36 H34 Z" fill="${color}"/>
     <circle cx="22" cy="22" r="20" fill="${color}" stroke="${ring}" stroke-width="2"/>
-    <!-- bowl -->
     <path d="M9 20 Q22 32 35 20 Q33 30 22 30 Q11 30 9 20Z" fill="#fff"/>
     <path d="M9 20 H35" stroke="#fff" stroke-width="2"/>
-    <!-- noodles squiggle -->
     <path d="M13 18 Q17 14 21 18 T29 18" stroke="#f5d061" stroke-width="2" fill="none" stroke-linecap="round"/>
     <path d="M13 22 Q17 18 21 22 T29 22" stroke="#f5d061" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <!-- chopsticks -->
     <line x1="26" y1="6" x2="34" y2="20" stroke="#8b5a2b" stroke-width="1.6" stroke-linecap="round"/>
     <line x1="29" y1="5" x2="36" y2="19" stroke="#8b5a2b" stroke-width="1.6" stroke-linecap="round"/>
-    <!-- steam -->
     <path d="M18 10 q-2 -3 0 -6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.85"/>
     <path d="M22 9 q-2 -3 0 -6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.85"/>
   </g>
@@ -46,9 +42,10 @@ const makeIcon = (highly: boolean) =>
     popupAnchor: [0, -46],
   });
 
-export function RamenMap() {
+type Props = { shops?: RamenShop[] };
+
+export function RamenMap({ shops = ramenShops }: Props) {
   useEffect(() => {
-    // ensure leaflet container sizes properly
     window.dispatchEvent(new Event("resize"));
   }, []);
 
@@ -63,10 +60,10 @@ export function RamenMap() {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {ramenShops.map((s) => (
+      {shops.map((s) => (
         <Marker key={s.id} position={[s.lat, s.lng]} icon={makeIcon(s.highlyRated)}>
           <Popup>
-            <div className="space-y-1">
+            <div className="space-y-1.5 min-w-[180px]">
               <div className="flex items-center gap-2">
                 <span className="font-bold text-base text-foreground">{s.name}</span>
                 {s.highlyRated && (
@@ -76,7 +73,35 @@ export function RamenMap() {
                 )}
               </div>
               <div className="text-xs text-muted-foreground">{s.address}</div>
-              {s.note && <div className="text-xs text-foreground">{s.note}</div>}
+              {s.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {s.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="text-[10px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full"
+                    >
+                      #{t}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2 pt-1">
+                <Link
+                  to="/shops/$shopId"
+                  params={{ shopId: s.id }}
+                  className="text-xs font-semibold text-rose-600 hover:underline"
+                >
+                  查看詳情 →
+                </Link>
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-semibold text-foreground hover:underline"
+                >
+                  🧭 導航
+                </a>
+              </div>
             </div>
           </Popup>
         </Marker>
