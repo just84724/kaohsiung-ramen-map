@@ -89,7 +89,7 @@ export const ramenShops: RamenShop[] = [
     lat: 22.668,
     lng: 120.3024,
     highlyRated: true,
-    tags: ["豚骨", "魚介"] as RamenTag[],
+    tags: ["豚骨", "魚介"],
     note: "東京池袋名店",
     signature: "東京豚骨拉麵",
     hours: "11:00 – 22:00",
