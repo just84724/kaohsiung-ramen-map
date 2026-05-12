@@ -35,7 +35,7 @@ export const Route = createFileRoute("/shops/$shopId")({
 });
 
 function ShopDetail() {
-  const { shop } = Route.useLoaderData();
+  const { shop } = Route.useLoaderData() as { shop: RamenShop };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-background to-rose-50">
