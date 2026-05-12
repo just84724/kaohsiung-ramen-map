@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { getShopById, ramenShops } from "@/data/ramen-shops";
+import { getShopById, ramenShops, type RamenShop } from "@/data/ramen-shops";
 import { NavigateButton } from "@/components/NavigateButton";
 
 export const Route = createFileRoute("/shops/$shopId")({
