@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Link } from "@tanstack/react-router";
-import { ramenShops, type RamenShop } from "@/data/ramen-shops";
+import { ramenShops, googleMapsSearchUrl, type RamenShop } from "@/data/ramen-shops";
 
 const bowlSvg = (color: string, ring: string) => `
 <svg xmlns="http://www.w3.org/2000/svg" width="44" height="54" viewBox="0 0 44 54">
@@ -94,12 +94,12 @@ export function RamenMap({ shops = ramenShops }: Props) {
                   查看詳情 →
                 </Link>
                 <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`}
+                  href={googleMapsSearchUrl(s)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs font-semibold text-foreground hover:underline"
                 >
-                  🧭 導航
+                  📍 Google 地圖
                 </a>
               </div>
             </div>
