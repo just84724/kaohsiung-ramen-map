@@ -9,10 +9,10 @@ type Props = {
 
 type Origin = { lat: number; lng: number } | null;
 
-function buildGoogleWebUrl(lat: number, lng: number, from: Origin) {
+function buildGoogleWebUrl(destination: string, from: Origin) {
   const params = new URLSearchParams({
     api: "1",
-    destination: `${lat},${lng}`,
+    destination,
     travelmode: "driving",
   });
   if (from) params.set("origin", `${from.lat},${from.lng}`);
@@ -20,13 +20,13 @@ function buildGoogleWebUrl(lat: number, lng: number, from: Origin) {
 }
 
 // Google Maps App scheme (iOS/Android 已安裝 App 時會直接開啟)
-function buildGoogleAppUrl(lat: number, lng: number, from: Origin) {
+function buildGoogleAppUrl(destination: string, from: Origin) {
   const saddr = from ? `${from.lat},${from.lng}` : "";
-  return `comgooglemaps://?daddr=${lat},${lng}${saddr ? `&saddr=${saddr}` : ""}&directionsmode=driving`;
+  return `comgooglemaps://?daddr=${encodeURIComponent(destination)}${saddr ? `&saddr=${saddr}` : ""}&directionsmode=driving`;
 }
 
-function buildAppleMapsUrl(lat: number, lng: number, from: Origin) {
-  const params = new URLSearchParams({ daddr: `${lat},${lng}`, dirflg: "d" });
+function buildAppleMapsUrl(destination: string, from: Origin) {
+  const params = new URLSearchParams({ daddr: destination, dirflg: "d" });
   if (from) params.set("saddr", `${from.lat},${from.lng}`);
   return `https://maps.apple.com/?${params.toString()}`;
 }
@@ -59,9 +59,10 @@ export function NavigateButton({ name, address, lat, lng }: Props) {
     setMobile(isMobileUA());
   }, []);
 
-  const googleUrl = useMemo(() => buildGoogleWebUrl(lat, lng, origin), [lat, lng, origin]);
-  const googleAppUrl = useMemo(() => buildGoogleAppUrl(lat, lng, origin), [lat, lng, origin]);
-  const appleUrl = useMemo(() => buildAppleMapsUrl(lat, lng, origin), [lat, lng, origin]);
+  const destination = `${name} ${address}`;
+  const googleUrl = useMemo(() => buildGoogleWebUrl(destination, origin), [destination, origin]);
+  const googleAppUrl = useMemo(() => buildGoogleAppUrl(destination, origin), [destination, origin]);
+  const appleUrl = useMemo(() => buildAppleMapsUrl(destination, origin), [destination, origin]);
   const osmUrl = useMemo(() => buildOsmUrl(lat, lng, origin), [lat, lng, origin]);
 
   const handleLocate = () => {
