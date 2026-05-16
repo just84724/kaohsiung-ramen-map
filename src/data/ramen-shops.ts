@@ -24,8 +24,8 @@ export type RamenShop = {
   hours?: string;
 };
 
-// 高雄市公開地圖/公開店家資料可查詢到的拉麵店。
-// 導航連結會使用「店名 + 地址」作為目的地,避免只用座標時被 Google Maps 導到同棟百貨或鄰近道路。
+// 店名、地址以 Google 地圖與公開店家頁可查到的店家資訊為準。
+// 導航連結會使用「店名 + 地址」作為目的地,避免只用座標時被導到同棟百貨或鄰近道路。
 export const ramenShops: RamenShop[] = [
   {
     id: "menya-musashi-bukotsu",
@@ -42,7 +42,7 @@ export const ramenShops: RamenShop[] = [
   {
     id: "tonchin-dream-mall",
     name: "屯京拉麵 高雄夢時代店",
-    address: "高雄市前鎮區中華五路789號",
+    address: "高雄市前鎮區中華五路789號B1樓",
     lat: 22.5951,
     lng: 120.3069,
     highlyRated: true,
@@ -53,8 +53,8 @@ export const ramenShops: RamenShop[] = [
   },
   {
     id: "kagetsu-arashi-dream-mall",
-    name: "花月嵐拉麵 夢時代高雄店",
-    address: "高雄市前鎮區中華五路789號",
+    name: "らあめん花月嵐拉麵 夢時代高雄店",
+    address: "高雄市前鎮區中華五路789號B1樓",
     lat: 22.5951,
     lng: 120.3069,
     highlyRated: false,
@@ -62,22 +62,11 @@ export const ramenShops: RamenShop[] = [
     signature: "嵐拉麵",
     description: "公開地圖與公開店家資料可查詢到的高雄拉麵店；導航時以店名加地址搜尋以取得最新 Google Maps 位置。",
   },
-  {
-    id: "wolong-ramen",
-    name: "臥龍拉麵",
-    address: "高雄市前鎮區林森三路197號",
-    lat: 22.6149,
-    lng: 120.3085,
-    highlyRated: true,
-    tags: ["豚骨", "醬油"],
-    signature: "豚骨拉麵",
-    description: "公開地圖與公開店家資料可查詢到的高雄拉麵店；導航時以店名加地址搜尋以取得最新 Google Maps 位置。",
-    reviewHighlights: ["公開評價表現較佳", "店名與地址可在地圖查詢", "建議出發前再確認營業時間"],
-  },
+
   {
     id: "hatsukari-ramen",
     name: "初狩拉麵",
-    address: "高雄市左營區自由二路452號對面",
+    address: "高雄市左營區自由二路452號對面號",
     lat: 22.668,
     lng: 120.3094,
     highlyRated: true,
@@ -89,7 +78,7 @@ export const ramenShops: RamenShop[] = [
   {
     id: "ippudo-hanshin-arena",
     name: "一風堂 漢神巨蛋店",
-    address: "高雄市左營區博愛二路777號B1",
+    address: "高雄市左營區博愛二路777號B1樓",
     lat: 22.6698,
     lng: 120.3024,
     highlyRated: true,
@@ -101,7 +90,7 @@ export const ramenShops: RamenShop[] = [
   {
     id: "ippudo-skm-park",
     name: "一風堂 SKM Park店",
-    address: "高雄市前鎮區中安路1之1號",
+    address: "高雄市前鎮區中安路1之1號3樓",
     lat: 22.5816,
     lng: 120.3296,
     highlyRated: false,
@@ -181,10 +170,10 @@ export const ramenShops: RamenShop[] = [
   },
   {
     id: "onikawa-fengshan",
-    name: "鬼川日式拉麵・丼飯",
-    address: "高雄市鳳山區建國路337號",
-    lat: 22.6377,
-    lng: 120.3498,
+    name: "鬼川拉麵丼飯",
+    address: "高雄市鳳山區建國路三段337號",
+    lat: 22.6375,
+    lng: 120.3499,
     highlyRated: false,
     tags: ["豚骨", "醬油"],
     signature: "拉麵 / 丼飯",
@@ -246,21 +235,11 @@ export const ramenShops: RamenShop[] = [
     signature: "日本拉麵",
     description: "公開地圖與公開店家資料可查詢到的高雄拉麵店；導航時以店名加地址搜尋以取得最新 Google Maps 位置。",
   },
-  {
-    id: "hirota-yucheng",
-    name: "拉麵廣田 悅誠店",
-    address: "高雄市三民區民族一路427號",
-    lat: 22.655,
-    lng: 120.315,
-    highlyRated: false,
-    tags: ["豚骨", "醬油"],
-    signature: "日式拉麵",
-    description: "公開地圖與公開店家資料可查詢到的高雄拉麵店；導航時以店名加地址搜尋以取得最新 Google Maps 位置。",
-  },
+
   {
     id: "hirota-dream-mall",
     name: "拉麵廣田 夢時代店",
-    address: "高雄市前鎮區中華五路789號",
+    address: "高雄市前鎮區中華五路789號7樓",
     lat: 22.5951,
     lng: 120.3069,
     highlyRated: false,
@@ -302,11 +281,11 @@ export const ramenShops: RamenShop[] = [
     description: "公開地圖與公開店家資料可查詢到的高雄拉麵店；導航時以店名加地址搜尋以取得最新 Google Maps 位置。",
   },
   {
-    id: "sanhetang-linsen",
-    name: "山禾堂拉麵 高雄總店",
-    address: "高雄市新興區林森一路165號",
-    lat: 22.6305,
-    lng: 120.3042,
+    id: "sanhetang-kaohsiung",
+    name: "山禾堂拉麵 高雄館",
+    address: "高雄市鼓山區美術南三路78號1樓",
+    lat: 22.6569,
+    lng: 120.2869,
     highlyRated: true,
     tags: ["豚骨", "味噌", "沾麵"],
     signature: "白味噌豚骨拉麵",
@@ -327,10 +306,10 @@ export const ramenShops: RamenShop[] = [
   },
   {
     id: "takao-ramen",
-    name: "獺鯌拉麵",
-    address: "高雄市鹽埕區大公路78號",
-    lat: 22.6243,
-    lng: 120.2856,
+    name: "獺鯌拉麵-Takau",
+    address: "高雄市鹽埕區大仁路164號",
+    lat: 22.6261,
+    lng: 120.2839,
     highlyRated: true,
     tags: ["豚骨", "醬油"],
     signature: "炙燒叉燒拉麵",
@@ -352,9 +331,9 @@ export const ramenShops: RamenShop[] = [
   {
     id: "menya-sho",
     name: "麵屋祥",
-    address: "高雄市鼓山區裕興路213號",
-    lat: 22.668,
-    lng: 120.2953,
+    address: "高雄市鼓山區大順一路459號",
+    lat: 22.6559,
+    lng: 120.3024,
     highlyRated: true,
     tags: ["豚骨", "雞白湯"],
     signature: "豚骨拉麵",
@@ -363,10 +342,10 @@ export const ramenShops: RamenShop[] = [
   },
   {
     id: "yoshitane-ramen-curry",
-    name: "吉胤家拉麵咖哩",
-    address: "高雄市三民區慶雲街",
+    name: "吉胤家拉麵",
+    address: "高雄市三民區慶雲街105號",
     lat: 22.6424,
-    lng: 120.315,
+    lng: 120.3150,
     highlyRated: true,
     tags: ["家系", "豚骨", "醬油"],
     signature: "橫濱家系豚骨醬油拉麵",
