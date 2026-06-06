@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { lazy, Suspense, useMemo, useState } from "react";
-import { ALL_TAGS, ramenShops, type RamenTag } from "@/data/ramen-shops";
+import { ALL_TAGS, ramenShops, type RamenTag, type RamenShop } from "@/data/ramen-shops";
+import { haversineKm, formatKm } from "@/lib/geo";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const RamenMap = lazy(() =>
   import("@/components/RamenMap").then((m) => ({ default: m.RamenMap })),
@@ -19,25 +22,132 @@ export const Route = createFileRoute("/")({
   }),
 });
 
+type ShopWithDist = RamenShop & { _dist?: number };
+
 function Index() {
+  const isMobile = useIsMobile();
   const [onlyRated, setOnlyRated] = useState(false);
   const [query, setQuery] = useState("");
   const [activeTags, setActiveTags] = useState<RamenTag[]>([]);
+  const [focusedShopId, setFocusedShopId] = useState<string | null>(null);
+  const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
+  const [sortByDist, setSortByDist] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [locError, setLocError] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const toggleTag = (t: RamenTag) =>
     setActiveTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
 
-  const shops = useMemo(() => {
+  const handleLocate = () => {
+    setLocError(null);
+    if (!("geolocation" in navigator)) {
+      setLocError("此瀏覽器不支援定位");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setSortByDist(true);
+        setLocating(false);
+      },
+      () => {
+        setLocating(false);
+        setLocError("無法取得您的位置,請允許瀏覽器存取定位");
+      },
+      { enableHighAccuracy: true, timeout: 8000 },
+    );
+  };
+
+  const shops: ShopWithDist[] = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return ramenShops.filter((s) => {
+    let list: ShopWithDist[] = ramenShops.filter((s) => {
       if (onlyRated && !s.highlyRated) return false;
       if (activeTags.length && !activeTags.every((t) => s.tags.includes(t))) return false;
       if (q && !`${s.name} ${s.address}`.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [onlyRated, query, activeTags]);
+    if (userLoc) {
+      list = list.map((s) => ({ ...s, _dist: haversineKm(userLoc, s) }));
+      if (sortByDist) list.sort((a, b) => (a._dist! - b._dist!));
+    }
+    return list;
+  }, [onlyRated, query, activeTags, userLoc, sortByDist]);
 
   const ratedCount = ramenShops.filter((s) => s.highlyRated).length;
+
+  const handleSelectShop = (id: string) => {
+    setFocusedShopId(id);
+    if (isMobile) setSheetOpen(false);
+  };
+
+  const listContent = (
+    <>
+      {shops.length === 0 ? (
+        <p className="text-sm text-muted-foreground">沒有符合條件的店家,試試清除篩選。</p>
+      ) : (
+        <ul className="space-y-2">
+          {shops.map((s) => {
+            const active = focusedShopId === s.id;
+            return (
+              <li key={s.id}>
+                <div
+                  className={`block p-3 rounded-xl border transition cursor-pointer ${
+                    active
+                      ? "border-rose-500 bg-rose-50 ring-2 ring-rose-200"
+                      : "border-border hover:border-rose-300 hover:bg-rose-50/40"
+                  }`}
+                  onClick={() => handleSelectShop(s.id)}
+                >
+                  <div className="flex items-start gap-2">
+                    <span className="text-xl leading-none">🍜</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-semibold text-foreground">{s.name}</span>
+                        {s.highlyRated && (
+                          <span className="text-[10px] font-bold bg-yellow-300 text-yellow-900 px-1.5 py-0.5 rounded-full">
+                            ★ 好評
+                          </span>
+                        )}
+                        {typeof s._dist === "number" && (
+                          <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">
+                            📍 {formatKm(s._dist)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{s.address}</p>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {s.tags.map((t) => (
+                          <span
+                            key={t}
+                            className="text-[10px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full"
+                          >
+                            #{t}
+                          </span>
+                        ))}
+                      </div>
+                      {s.note && (
+                        <p className="text-xs text-foreground/80 mt-1 italic">{s.note}</p>
+                      )}
+                      <Link
+                        to="/shops/$shopId"
+                        params={{ shopId: s.id }}
+                        className="inline-block mt-2 text-xs font-semibold text-rose-600 hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        查看詳情 →
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-background to-rose-50">
@@ -77,6 +187,25 @@ function Index() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
+              onClick={handleLocate}
+              disabled={locating}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition disabled:opacity-60 ${
+                userLoc
+                  ? "bg-blue-600 text-white shadow"
+                  : "bg-white border border-blue-300 text-blue-700 hover:bg-blue-50"
+              }`}
+            >
+              {locating ? "定位中…" : userLoc ? "✓ 附近的店" : "📍 找附近的店"}
+            </button>
+            {userLoc && (
+              <button
+                onClick={() => setSortByDist((v) => !v)}
+                className="px-3 py-2 rounded-full text-xs font-semibold bg-white border border-border hover:bg-accent"
+              >
+                {sortByDist ? "依距離排序中" : "切換距離排序"}
+              </button>
+            )}
+            <button
               onClick={() => setOnlyRated(false)}
               className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
                 !onlyRated
@@ -98,6 +227,12 @@ function Index() {
             </button>
           </div>
         </div>
+
+        {locError && (
+          <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5 inline-block">
+            {locError}
+          </p>
+        )}
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground mr-1">湯頭/類型:</span>
@@ -135,8 +270,8 @@ function Index() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 pb-16 grid lg:grid-cols-[1fr_320px] gap-6">
-        <section className="h-[70vh] min-h-[480px] rounded-2xl shadow-xl ring-1 ring-black/5 overflow-hidden bg-white">
+      <main className="max-w-6xl mx-auto px-4 pb-24 grid lg:grid-cols-[1fr_320px] gap-6">
+        <section className="h-[70vh] min-h-[480px] rounded-2xl shadow-xl ring-1 ring-black/5 overflow-hidden bg-white relative">
           <Suspense
             fallback={
               <div className="h-full w-full flex items-center justify-center text-muted-foreground">
@@ -144,57 +279,39 @@ function Index() {
               </div>
             }
           >
-            <RamenMap shops={shops} />
+            <RamenMap
+              shops={shops}
+              focusedShopId={focusedShopId}
+              userLocation={userLoc}
+            />
           </Suspense>
         </section>
 
-        <aside className="bg-white rounded-2xl shadow-xl ring-1 ring-black/5 p-4 max-h-[70vh] overflow-y-auto">
+        {/* 桌面側欄 */}
+        <aside className="hidden lg:block bg-white rounded-2xl shadow-xl ring-1 ring-black/5 p-4 max-h-[70vh] overflow-y-auto">
           <h2 className="font-bold text-foreground mb-3">店家清單</h2>
-          {shops.length === 0 ? (
-            <p className="text-sm text-muted-foreground">沒有符合條件的店家,試試清除篩選。</p>
-          ) : (
-            <ul className="space-y-2">
-              {shops.map((s) => (
-                <li key={s.id}>
-                  <Link
-                    to="/shops/$shopId"
-                    params={{ shopId: s.id }}
-                    className="block p-3 rounded-xl border border-border hover:border-rose-300 hover:bg-rose-50/40 transition"
-                  >
-                    <div className="flex items-start gap-2">
-                      <span className="text-xl leading-none">🍜</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="font-semibold text-foreground">{s.name}</span>
-                          {s.highlyRated && (
-                            <span className="text-[10px] font-bold bg-yellow-300 text-yellow-900 px-1.5 py-0.5 rounded-full">
-                              ★ 好評
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">{s.address}</p>
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          {s.tags.map((t) => (
-                            <span
-                              key={t}
-                              className="text-[10px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full"
-                            >
-                              #{t}
-                            </span>
-                          ))}
-                        </div>
-                        {s.note && (
-                          <p className="text-xs text-foreground/80 mt-1 italic">{s.note}</p>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+          {listContent}
         </aside>
       </main>
+
+      {/* 手機底部抽屜按鈕 */}
+      {isMobile && (
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetTrigger asChild>
+            <button
+              className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 bg-rose-600 text-white font-semibold px-5 py-3 rounded-full shadow-2xl z-[1000] flex items-center gap-2"
+            >
+              🍜 店家清單 ({shops.length})
+            </button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="max-h-[75vh] overflow-y-auto rounded-t-3xl">
+            <SheetHeader>
+              <SheetTitle>店家清單 · {shops.length} 間</SheetTitle>
+            </SheetHeader>
+            <div className="mt-3">{listContent}</div>
+          </SheetContent>
+        </Sheet>
+      )}
 
       <footer className="text-center text-xs text-muted-foreground pb-8">
         資料僅供參考 · 地圖 © OpenStreetMap 貢獻者
