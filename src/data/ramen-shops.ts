@@ -66,7 +66,7 @@ export const ramenShops: RamenShop[] = [
   {
     id: "hatsukari-ramen",
     name: "初狩拉麵",
-    address: "高雄市左營區自由二路452號對面號",
+    address: "高雄市左營區自由二路452號對面",
     lat: 22.668,
     lng: 120.3094,
     highlyRated: true,

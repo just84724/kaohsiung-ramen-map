@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { useEffect, useRef } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Link } from "@tanstack/react-router";
@@ -26,12 +26,12 @@ const bowlSvg = (color: string, ring: string) => `
   </g>
 </svg>`;
 
-const makeIcon = (highly: boolean) =>
+const makeIcon = (highly: boolean, focused = false) =>
   L.divIcon({
     className: "ramen-marker",
-    html: `<div style="position:relative">${bowlSvg(
+    html: `<div style="position:relative;transform:${focused ? "scale(1.25)" : "scale(1)"};transform-origin:bottom center;transition:transform .25s;">${bowlSvg(
       highly ? "#e11d48" : "#1f2937",
-      highly ? "#fde68a" : "#9ca3af",
+      focused ? "#22d3ee" : highly ? "#fde68a" : "#9ca3af",
     )}${
       highly
         ? `<div style="position:absolute;top:-6px;right:-6px;background:#fde047;color:#7c2d12;border-radius:9999px;font-size:10px;font-weight:800;padding:2px 5px;box-shadow:0 1px 4px rgba(0,0,0,.3);border:1.5px solid #fff;">★</div>`
@@ -42,9 +42,46 @@ const makeIcon = (highly: boolean) =>
     popupAnchor: [0, -46],
   });
 
-type Props = { shops?: RamenShop[] };
+const userIcon = L.divIcon({
+  className: "user-marker",
+  html: `<div style="width:18px;height:18px;border-radius:9999px;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 3px rgba(37,99,235,.3);"></div>`,
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
+});
 
-export function RamenMap({ shops = ramenShops }: Props) {
+type Props = {
+  shops?: RamenShop[];
+  focusedShopId?: string | null;
+  userLocation?: { lat: number; lng: number } | null;
+};
+
+// 內部:當 focusedShopId 變動時飛到該點並打開 popup
+function FocusController({
+  shops,
+  focusedShopId,
+  markersRef,
+}: {
+  shops: RamenShop[];
+  focusedShopId?: string | null;
+  markersRef: React.MutableRefObject<Record<string, L.Marker>>;
+}) {
+  const map = useMap();
+  useEffect(() => {
+    if (!focusedShopId) return;
+    const s = shops.find((x) => x.id === focusedShopId);
+    if (!s) return;
+    map.flyTo([s.lat, s.lng], Math.max(map.getZoom(), 16), { duration: 0.6 });
+    const t = setTimeout(() => {
+      markersRef.current[focusedShopId]?.openPopup();
+    }, 650);
+    return () => clearTimeout(t);
+  }, [focusedShopId, shops, map, markersRef]);
+  return null;
+}
+
+export function RamenMap({ shops = ramenShops, focusedShopId, userLocation }: Props) {
+  const markersRef = useRef<Record<string, L.Marker>>({});
+
   useEffect(() => {
     window.dispatchEvent(new Event("resize"));
   }, []);
@@ -60,8 +97,24 @@ export function RamenMap({ shops = ramenShops }: Props) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+      <FocusController shops={shops} focusedShopId={focusedShopId} markersRef={markersRef} />
+
+      {userLocation && (
+        <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
+          <Popup>您目前的位置</Popup>
+        </Marker>
+      )}
+
       {shops.map((s) => (
-        <Marker key={s.id} position={[s.lat, s.lng]} icon={makeIcon(s.highlyRated)}>
+        <Marker
+          key={s.id}
+          position={[s.lat, s.lng]}
+          icon={makeIcon(s.highlyRated, focusedShopId === s.id)}
+          ref={(ref) => {
+            if (ref) markersRef.current[s.id] = ref;
+            else delete markersRef.current[s.id];
+          }}
+        >
           <Popup>
             <div className="space-y-1.5 min-w-[180px]">
               <div className="flex items-center gap-2">
