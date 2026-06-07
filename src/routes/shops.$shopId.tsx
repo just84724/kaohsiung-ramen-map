@@ -45,8 +45,9 @@ function ShopDetail() {
         </Link>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 pb-16">
-        <div className="bg-white rounded-3xl shadow-xl ring-1 ring-black/5 p-6 md:p-8">
+      <main className="max-w-3xl mx-auto px-3 sm:px-4 pb-16">
+        <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl ring-1 ring-black/5 p-4 sm:p-6 md:p-8">
+
           <div className="flex items-start gap-4">
             <div className="text-5xl">🍜</div>
             <div className="flex-1 min-w-0">
