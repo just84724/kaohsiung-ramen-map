@@ -292,10 +292,13 @@ function Index() {
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
             <button
-              className="lg:hidden fixed safe-fab-bottom left-1/2 -translate-x-1/2 bg-rose-600 text-white font-semibold px-5 py-3 rounded-full shadow-2xl z-[1000] flex items-center gap-2 active:scale-95 transition"
+              className={`lg:hidden fixed safe-fab-bottom left-1/2 -translate-x-1/2 bg-rose-600 text-white font-semibold px-5 py-3 rounded-full shadow-2xl z-[1000] flex items-center gap-2 active:scale-95 transition ${
+                sheetOpen ? "opacity-0 pointer-events-none" : ""
+              }`}
             >
               🍜 店家清單 ({shops.length})
             </button>
+
           </SheetTrigger>
           <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto rounded-t-3xl px-4 pt-5 pb-8 safe-bottom">
             <SheetHeader>
