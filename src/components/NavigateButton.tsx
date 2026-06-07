@@ -239,27 +239,30 @@ function UrlRow({
   onCopy: () => void;
 }) {
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-[11px] font-semibold text-muted-foreground w-24 shrink-0">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+      <span className="text-[11px] font-semibold text-muted-foreground sm:w-24 shrink-0">
         {label}
       </span>
-      <input
-        readOnly
-        value={url}
-        onFocus={(e) => e.currentTarget.select()}
-        className="flex-1 min-w-0 text-xs bg-background border border-border rounded-md px-2 py-1.5 font-mono"
-      />
-      <button
-        type="button"
-        onClick={onCopy}
-        className={`text-xs font-semibold px-3 py-1.5 rounded-md transition shrink-0 ${
-          copied
-            ? "bg-emerald-600 text-white"
-            : "bg-foreground text-background hover:opacity-90"
-        }`}
-      >
-        {copied ? "✓ 已複製" : "複製"}
-      </button>
+      <div className="flex items-center gap-2 min-w-0">
+        <input
+          readOnly
+          value={url}
+          onFocus={(e) => e.currentTarget.select()}
+          className="flex-1 min-w-0 text-xs bg-background border border-border rounded-md px-2 py-1.5 font-mono"
+        />
+        <button
+          type="button"
+          onClick={onCopy}
+          className={`text-xs font-semibold px-3 py-1.5 rounded-md transition shrink-0 ${
+            copied
+              ? "bg-emerald-600 text-white"
+              : "bg-foreground text-background hover:opacity-90"
+          }`}
+        >
+          {copied ? "✓ 已複製" : "複製"}
+        </button>
+      </div>
     </div>
   );
 }
+
