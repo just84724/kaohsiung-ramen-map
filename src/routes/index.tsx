@@ -93,7 +93,7 @@ function Index() {
             return (
               <li key={s.id}>
                 <div
-                  className={`block p-3 rounded-xl border transition cursor-pointer ${
+                  className={`block p-3 rounded-xl border transition cursor-pointer active:scale-[0.99] ${
                     active
                       ? "border-rose-500 bg-rose-50 ring-2 ring-rose-200"
                       : "border-border hover:border-rose-300 hover:bg-rose-50/40"
@@ -104,7 +104,7 @@ function Index() {
                     <span className="text-xl leading-none">🍜</span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-semibold text-foreground">{s.name}</span>
+                        <span className="font-semibold text-foreground break-words">{s.name}</span>
                         {s.highlyRated && (
                           <span className="text-[10px] font-bold bg-yellow-300 text-yellow-900 px-1.5 py-0.5 rounded-full">
                             ★ 好評
@@ -116,7 +116,7 @@ function Index() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">{s.address}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 break-words">{s.address}</p>
                       <div className="mt-1 flex flex-wrap gap-1">
                         {s.tags.map((t) => (
                           <span
@@ -150,21 +150,21 @@ function Index() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-background to-rose-50">
-      <header className="max-w-6xl mx-auto px-4 pt-10 pb-6">
+    <div className="min-h-[100dvh] bg-gradient-to-b from-amber-50 via-background to-rose-50">
+      <header className="max-w-6xl mx-auto px-4 pt-6 md:pt-10 pb-4 md:pb-6">
         <div className="flex items-center gap-3">
-          <div className="text-4xl">🍜</div>
-          <div>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
+          <div className="text-3xl md:text-4xl">🍜</div>
+          <div className="min-w-0">
+            <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-foreground">
               高雄拉麵地圖
             </h1>
-            <p className="text-sm md:text-base text-muted-foreground mt-1">
-              共 {ramenShops.length} 間店家 · ⭐ 好評 {ratedCount} 間
+            <p className="text-xs md:text-base text-muted-foreground mt-0.5 md:mt-1">
+              共 {ramenShops.length} 間 · ⭐ 好評 {ratedCount} 間
             </p>
           </div>
         </div>
 
-        <div className="mt-5 grid gap-3 md:grid-cols-[1fr_auto] items-center">
+        <div className="mt-4 md:mt-5 flex flex-col md:grid md:grid-cols-[1fr_auto] gap-2 md:gap-3 md:items-center">
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
               🔍
@@ -172,14 +172,14 @@ function Index() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="搜尋店名或地址(例:一蘭、左營區)"
-              className="w-full pl-9 pr-9 py-2.5 rounded-full bg-white border border-border shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
+              placeholder="搜尋店名或地址"
+              className="w-full pl-9 pr-9 py-2.5 rounded-full bg-white border border-border shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
             />
             {query && (
               <button
                 onClick={() => setQuery("")}
                 aria-label="清除搜尋"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
               >
                 ✕
               </button>
@@ -189,35 +189,25 @@ function Index() {
             <button
               onClick={handleLocate}
               disabled={locating}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition disabled:opacity-60 ${
+              className={`px-3 md:px-4 py-2 rounded-full text-sm font-semibold transition disabled:opacity-60 ${
                 userLoc
                   ? "bg-blue-600 text-white shadow"
                   : "bg-white border border-blue-300 text-blue-700 hover:bg-blue-50"
               }`}
             >
-              {locating ? "定位中…" : userLoc ? "✓ 附近的店" : "📍 找附近的店"}
+              {locating ? "定位中…" : userLoc ? "✓ 附近" : "📍 附近的店"}
             </button>
             {userLoc && (
               <button
                 onClick={() => setSortByDist((v) => !v)}
                 className="px-3 py-2 rounded-full text-xs font-semibold bg-white border border-border hover:bg-accent"
               >
-                {sortByDist ? "依距離排序中" : "切換距離排序"}
+                {sortByDist ? "依距離 ✓" : "距離排序"}
               </button>
             )}
             <button
-              onClick={() => setOnlyRated(false)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
-                !onlyRated
-                  ? "bg-foreground text-background shadow"
-                  : "bg-white border border-border text-foreground hover:bg-accent"
-              }`}
-            >
-              全部
-            </button>
-            <button
-              onClick={() => setOnlyRated(true)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
+              onClick={() => setOnlyRated((v) => !v)}
+              className={`px-3 md:px-4 py-2 rounded-full text-sm font-semibold transition ${
                 onlyRated
                   ? "bg-rose-600 text-white shadow"
                   : "bg-white border border-border text-foreground hover:bg-accent"
@@ -234,44 +224,47 @@ function Index() {
           </p>
         )}
 
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted-foreground mr-1">湯頭/類型:</span>
-          {ALL_TAGS.map((t) => {
-            const active = activeTags.includes(t);
-            return (
+        {/* 標籤篩選:手機橫向捲動,桌面 wrap */}
+        <div className="mt-3 -mx-4 md:mx-0 px-4 md:px-0">
+          <div className="flex md:flex-wrap items-center gap-2 overflow-x-auto md:overflow-visible no-scrollbar pb-1">
+            <span className="text-xs text-muted-foreground mr-1 shrink-0">湯頭:</span>
+            {ALL_TAGS.map((t) => {
+              const active = activeTags.includes(t);
+              return (
+                <button
+                  key={t}
+                  onClick={() => toggleTag(t)}
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                    active
+                      ? "bg-rose-600 text-white border-rose-600 shadow"
+                      : "bg-white text-foreground border-border hover:border-rose-300"
+                  }`}
+                >
+                  #{t}
+                </button>
+              );
+            })}
+            {(activeTags.length > 0 || query || onlyRated) && (
               <button
-                key={t}
-                onClick={() => toggleTag(t)}
-                className={`px-3 py-1 rounded-full text-xs font-semibold border transition ${
-                  active
-                    ? "bg-rose-600 text-white border-rose-600 shadow"
-                    : "bg-white text-foreground border-border hover:border-rose-300"
-                }`}
+                onClick={() => {
+                  setActiveTags([]);
+                  setQuery("");
+                  setOnlyRated(false);
+                }}
+                className="shrink-0 ml-1 text-xs text-rose-600 hover:underline"
               >
-                #{t}
+                清除
               </button>
-            );
-          })}
-          {(activeTags.length > 0 || query || onlyRated) && (
-            <button
-              onClick={() => {
-                setActiveTags([]);
-                setQuery("");
-                setOnlyRated(false);
-              }}
-              className="ml-1 text-xs text-rose-600 hover:underline"
-            >
-              清除全部
-            </button>
-          )}
-          <span className="ml-auto text-xs text-muted-foreground">
+            )}
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground text-right">
             符合 {shops.length} 間
-          </span>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 pb-24 grid lg:grid-cols-[1fr_320px] gap-6">
-        <section className="h-[70vh] min-h-[480px] rounded-2xl shadow-xl ring-1 ring-black/5 overflow-hidden bg-white relative">
+      <main className="max-w-6xl mx-auto px-4 pb-24 grid lg:grid-cols-[1fr_320px] gap-4 md:gap-6">
+        <section className="h-[60vh] md:h-[70vh] min-h-[360px] rounded-2xl shadow-xl ring-1 ring-black/5 overflow-hidden bg-white relative">
           <Suspense
             fallback={
               <div className="h-full w-full flex items-center justify-center text-muted-foreground">
@@ -299,12 +292,12 @@ function Index() {
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
             <button
-              className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 bg-rose-600 text-white font-semibold px-5 py-3 rounded-full shadow-2xl z-[1000] flex items-center gap-2"
+              className="lg:hidden fixed safe-fab-bottom left-1/2 -translate-x-1/2 bg-rose-600 text-white font-semibold px-5 py-3 rounded-full shadow-2xl z-[1000] flex items-center gap-2 active:scale-95 transition"
             >
               🍜 店家清單 ({shops.length})
             </button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="max-h-[75vh] overflow-y-auto rounded-t-3xl">
+          <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto rounded-t-3xl px-4 pt-5 pb-8 safe-bottom">
             <SheetHeader>
               <SheetTitle>店家清單 · {shops.length} 間</SheetTitle>
             </SheetHeader>
